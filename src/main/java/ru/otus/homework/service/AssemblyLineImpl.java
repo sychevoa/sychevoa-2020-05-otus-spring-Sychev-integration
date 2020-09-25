@@ -1,6 +1,7 @@
 package ru.otus.homework.service;
 
 import org.springframework.stereotype.Service;
+import ru.otus.homework.exception.DefectivePartException;
 import ru.otus.homework.exception.FrameNotFoundException;
 import ru.otus.homework.model.*;
 
@@ -18,11 +19,24 @@ public class AssemblyLineImpl implements AssemblyLine {
     public Bicycle assemble(PartKit partKit) {
         List<Part> parts = partKit.getParts();
 
+        if (hasDefectivePart(parts)) {
+            throw new DefectivePartException("Assembly is not possible, there are defective parts");
+        }
+
         return Bicycle.builder()
                 .brand(getFrameBrand(parts))
                 .originType(calculateOriginType(parts))
                 .classification(getRandomClassification())
                 .build();
+    }
+
+    private boolean hasDefectivePart(List<Part> parts) {
+
+        return parts.stream()
+                .map(Part::isDefective)
+                .filter(Boolean::booleanValue)
+                .findAny()
+                .orElse(false);
     }
 
     private OriginType calculateOriginType(Collection<Part> parts) {

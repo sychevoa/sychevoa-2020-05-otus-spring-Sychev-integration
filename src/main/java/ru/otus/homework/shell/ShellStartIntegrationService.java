@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.homework.BicycleStore;
+import ru.otus.homework.exception.DefectivePartException;
 import ru.otus.homework.model.Bicycle;
 import ru.otus.homework.model.Part;
 import ru.otus.homework.model.PartKit;
@@ -35,7 +36,12 @@ public class ShellStartIntegrationService {
 
             log.info("Part kit: {}", partKit);
 
-            Collection<Bicycle> bicycles = store.process(partKit);
+            Collection<Bicycle> bicycles = null;
+            try {
+                bicycles = store.process(partKit);
+            } catch (DefectivePartException ex) {
+                log.error(ex.getMessage());
+            }
 
             log.info("Assembled bicycles: {}", bicycles);
         }
@@ -51,10 +57,17 @@ public class ShellStartIntegrationService {
                             .originCountry(countries.get(new Random().nextInt(countries.size())))
                             .brand(brands.get(new Random().nextInt(brands.size())))
                             .type(partType)
+                            .isDefective(getRandomDefective())
                             .build()
             );
         }
 
         return parts;
+    }
+
+    private boolean getRandomDefective() {
+        Random random = new Random();
+
+        return random.nextInt(100) < 10;
     }
 }

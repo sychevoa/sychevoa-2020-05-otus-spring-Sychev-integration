@@ -9,4 +9,5 @@ public class Part {
     private String originCountry;
     private String brand;
     private PartType type;
+    private boolean isDefective;
 }
